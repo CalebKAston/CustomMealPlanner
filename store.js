@@ -4,13 +4,88 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 const initialState = {
   isLoading: false,
   userName: '',
+  isLoggedIn: false,
   recipes: [],
   mealPlans: [],
   ingredients: [],
-  schedulePieces: [],
+  schedulePieces: [
+    {
+      name: 'Snack',
+      id: 1,
+    },
+    {
+      name: 'Breakfast',
+      id: 2,
+    },
+    {
+      name: 'Lunch',
+      id: 3,
+    },
+    {
+      name: 'Dinner',
+      id: 4,
+    },
+  ],
   scheduleTemplates: [],
   meals: [],
-  measurements: [],
+  measurements: [
+    {
+      name: 'Unit',
+      display: 'unit',
+      weightOunces: null,
+      fluidOunces: null,
+      id: 1,
+    },
+    {
+      name: 'Pound',
+      display: 'lbs',
+      weightOunces: 16,
+      fluidOunces: null,
+      id: 2,
+    },
+    {
+      name: 'Teaspoon',
+      display: 'tsp',
+      weightOunces: null,
+      fluidOunces: 0.166667,
+      id: 3,
+    },
+    {
+      name: 'Tablespoon',
+      display: 'tbsp',
+      weightOunces: null,
+      fluidOunces: 0.5,
+      id: 4,
+    },
+    {
+      name: 'Cup',
+      display: 'c',
+      weightOunces: null,
+      fluidOunces: 8,
+      id: 5,
+    },
+    {
+      name: 'Pint',
+      display: 'pt',
+      weightOunces: null,
+      fluidOunces: 16,
+      id: 6,
+    },
+    {
+      name: 'Quart',
+      display: 'qt',
+      weightOunces: null,
+      fluidOunces: 32,
+      id: 7,
+    },
+    {
+      name: 'Gallon',
+      display: 'gal',
+      weightOunces: null,
+      fluidOunces: 128,
+      id: 8,
+    },
+  ],
   ingredientCategories: [],
   recipeCategories: [],
   tags: [],
@@ -19,6 +94,7 @@ const initialState = {
 export const actionTypes = {
   toggleIsLoading: 'TOGGLE_IS_LOADING',
   setUserName: 'SET_USER_NAME',
+  setIsLoggedIn: 'SET_IS_LOGGED_IN',
   recipes: {
     add: 'ADD_RECIPE',
     update: 'UPDATE_RECIPE',
@@ -84,6 +160,15 @@ const userName = (state = '', action) => {
   switch (action.type) {
     case actionTypes.setUserName:
       return action.userName;
+    default:
+      return state;
+  }
+};
+
+const isLoggedIn = (state = false, action) => {
+  switch (action.type) {
+    case actionTypes.setIsLoggedIn:
+      return action.isLoggedIn;
     default:
       return state;
   }
@@ -201,8 +286,9 @@ const measurements = (state = [], action) => {
       return [...state, action.measurement];
     case actionTypes.measurements.update:
       return state.map((measurement) => {
-        if (measurement.id === action.id)
+        if (measurement.id === action.id) {
           return { ...measurement, ...action.measurement };
+        }
         return measurement;
       });
     case actionTypes.measurements.remove:
@@ -269,6 +355,7 @@ const tags = (state = [], action) => {
 const reducer = combineReducers({
   isLoading,
   userName,
+  isLoggedIn,
   recipes,
   mealPlans,
   ingredients,

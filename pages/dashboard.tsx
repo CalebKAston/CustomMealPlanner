@@ -1,25 +1,114 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { withRedux } from '../lib/redux';
-import { useDispatch, useSelector } from 'react-redux';
-import { checkAuth } from '../api/authentication';
-import Router from 'next/router';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components';
+import Link from 'next/link';
+
+const CursorPointerDiv = styled.div`
+  cursor: pointer;
+`;
+
+const WelcomeMessage = styled.div`
+  font-size: 3rem;
+  font-weight: bold;
+`;
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
+  const userName = useSelector((state) => state.userName);
 
-  if (typeof window !== 'undefined') {
-    const accessToken = window.localStorage.getItem('cmpAccessToken');
-
-    useEffect(() => {
-      checkAuth(accessToken)
-        .then((response) => {
-          if (!response.isLoggedIn) Router.push('/login');
-        })
-        .catch((error) => console.error(error));
-    }, [accessToken]);
-  }
-
-  return <div>Dashboard Page</div>;
+  return (
+    <>
+      <div className='row'>
+        <div className='col-12 mb-5'>
+          <WelcomeMessage>Welcome, {userName}</WelcomeMessage>
+        </div>
+        <div className='col-12 mb-3'>
+          <Link href='meal-plans'>
+            <CursorPointerDiv className='card'>
+              <div className='card-body'>
+                <h5 className='card-title'>Meal Plans</h5>
+                <p className='card-text'>
+                  Create/customize your personal meal plans.
+                </p>
+              </div>
+            </CursorPointerDiv>
+          </Link>
+        </div>
+        <div className='col-6 mb-3'>
+          <Link href='meals'>
+            <CursorPointerDiv className='card'>
+              <div className='card-body'>
+                <h5 className='card-title'>Meals</h5>
+                <p className='card-text'>
+                  Create/customize your personal meals.
+                </p>
+              </div>
+            </CursorPointerDiv>
+          </Link>
+        </div>
+        <div className='col-6 mb-3'>
+          <Link href='/recipes'>
+            <CursorPointerDiv className='card'>
+              <div className='card-body'>
+                <h5 className='card-title'>Recipes</h5>
+                <p className='card-text'>
+                  Create/customize your personal recipes.
+                </p>
+              </div>
+            </CursorPointerDiv>
+          </Link>
+        </div>
+        <div className='col-3 mb-3'>
+          <Link href='/ingredients'>
+            <CursorPointerDiv className='card'>
+              <div className='card-body'>
+                <h5 className='card-title'>Ingredients</h5>
+                <p className='card-text'>
+                  Create/customize your personal ingredients.
+                </p>
+              </div>
+            </CursorPointerDiv>
+          </Link>
+        </div>
+        <div className='col-3 mb-3'>
+          <Link href='/schedules'>
+            <CursorPointerDiv className='card'>
+              <div className='card-body'>
+                <h5 className='card-title'>Schedule Templates</h5>
+                <p className='card-text'>
+                  Create/customize your personal schedule templates.
+                </p>
+              </div>
+            </CursorPointerDiv>
+          </Link>
+        </div>
+        <div className='col-3 mb-3'>
+          <Link href='/schedule-pieces'>
+            <CursorPointerDiv className='card'>
+              <div className='card-body'>
+                <h5 className='card-title'>Schedule Pieces</h5>
+                <p className='card-text'>
+                  Create/customize your personal schedule pieces.
+                </p>
+              </div>
+            </CursorPointerDiv>
+          </Link>
+        </div>
+        <div className='col-3 mb-3'>
+          <Link href='/measurements'>
+            <CursorPointerDiv className='card cursor-pointer'>
+              <div className='card-body'>
+                <h5 className='card-title'>Measurements</h5>
+                <p className='card-text'>
+                  Create/customize your personal measurements.
+                </p>
+              </div>
+            </CursorPointerDiv>
+          </Link>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default withRedux(Dashboard);
