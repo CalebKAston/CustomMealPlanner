@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { useForm } from 'react-hook-form';
 import { withRedux } from '../lib/redux';
 import { actionTypes } from '../store';
 import MeasurementViewModal from '../components/measurement-modals/view';
@@ -39,25 +38,31 @@ const BoldedSpan = styled.span`
 const Measurements = () => {
   const dispatch = useDispatch();
   const [nameFilter, setNameFilter] = useState('');
-  const measurements: Measurement[] = useSelector(
-    (state) => state.measurements
-  );
-  const [selectedMeasurement, setSelectedMeasurement] = useState<Measurement>(
-    measurements.length > 0 ? measurements[0] : null
-  );
-
-  const setSelectedMeasurementAndOpenModal = (measurement: Measurement) => {
-    setSelectedMeasurement(measurement);
-    $('#measurementModal').modal('show');
-  };
+  const measurements: Measurement[] = useSelector(state => state.measurements);
+  const [selectedMeasurement, setSelectedMeasurement] = useState<Measurement>();
+  const [updating, setUpdating] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const filterFn = (item: Measurement) => {
     return nameFilter ? new RegExp(nameFilter, 'i').test(item.name) : true;
   };
 
-  const openUpdateModal = () => {
-    $('#measurementModal').modal('hide');
-    $('#updateMeasurementModal').modal('show');
+  useEffect(() => {
+    $('#modal').on('hidden.bs.modal', function (e) {
+      setAdding(false);
+      setUpdating(false);
+      setDeleting(false);
+      setSelectedMeasurement(null);
+    });
+  });
+
+  const openModal = () => {
+    $('#modal').modal('show');
+  };
+
+  const closeModal = () => {
+    $('#modal').modal('hide');
   };
 
   const updateMeasurement = (formData: MeasurementForm) => {
@@ -66,11 +71,8 @@ const Measurements = () => {
       id: selectedMeasurement.id,
       measurement: formData,
     });
-    $('#updateMeasurementModal').modal('hide');
-  };
-
-  const openAddModal = () => {
-    $('#addMeasurementModal').modal('show');
+    setUpdating(false);
+    closeModal();
   };
 
   const addMeasurement = (formData: MeasurementForm) => {
@@ -78,12 +80,8 @@ const Measurements = () => {
       type: actionTypes.measurements.add,
       measurement: { ...formData, id: 10 },
     });
-    $('#addMeasurementModal').modal('hide');
-  };
-
-  const openDeleteModal = () => {
-    $('#measurementModal').modal('hide');
-    $('#deleteMeasurementModal').modal('show');
+    setAdding(false);
+    closeModal();
   };
 
   const deleteMeasurement = () => {
@@ -91,9 +89,9 @@ const Measurements = () => {
       type: actionTypes.measurements.remove,
       measurement: selectedMeasurement,
     });
-    $('#measurementModal').modal('hide');
-    $('#deleteMeasurementModal').modal('hide');
-    setSelectedMeasurement(measurements.length > 0 ? measurements[0] : null);
+    setDeleting(false);
+    setSelectedMeasurement(null);
+    closeModal();
   };
 
   return (
@@ -121,7 +119,7 @@ const Measurements = () => {
                   name='name'
                   className={`form-control`}
                   value={nameFilter}
-                  onChange={(e) => setNameFilter(e.target.value)}
+                  onChange={e => setNameFilter(e.target.value)}
                   id='measurementsName'
                 />
               </div>
@@ -131,7 +129,10 @@ const Measurements = () => {
         <div className='col-12 mt-3'>
           <button
             className='btn btn-success w-100'
-            onClick={() => openAddModal()}
+            onClick={() => {
+              setAdding(true);
+              openModal();
+            }}
           >
             Add New Measurement
           </button>
@@ -143,11 +144,14 @@ const Measurements = () => {
             No measurements available. Create one!
           </div>
         )}
-        {measurements.filter(filterFn).map((measurement) => (
+        {measurements.filter(filterFn).map(measurement => (
           <div className='col-4 mb-3' key={measurement.name}>
             <CursorPointerDiv
               className='card'
-              onClick={() => setSelectedMeasurementAndOpenModal(measurement)}
+              onClick={() => {
+                setSelectedMeasurement(measurement);
+                openModal();
+              }}
             >
               <div className='card-body'>
                 <h5 className='card-title'>{measurement.name}</h5>
@@ -171,32 +175,41 @@ const Measurements = () => {
           </div>
         ))}
       </div>
-      {selectedMeasurement && (
-        <MeasurementViewModal
-          id='measurementModal'
-          selectedMeasurement={selectedMeasurement}
-          onDeleteClick={() => openDeleteModal()}
-          onEditClick={() => openUpdateModal()}
-        />
-      )}
-      {selectedMeasurement && (
-        <MeasurementUpdateModal
-          id='updateMeasurementModal'
-          selectedMeasurement={selectedMeasurement}
-          onFormSubmit={(formData) => updateMeasurement(formData)}
-        />
-      )}
-      {selectedMeasurement && (
-        <DeleteConfirmationModal
-          id='deleteMeasurementModal'
-          itemToDeleteName={selectedMeasurement.name}
-          onDeleteClick={() => deleteMeasurement()}
-        />
-      )}
-      <MeasurementAddModal
-        id='addMeasurementModal'
-        onFormSubmit={(formData) => addMeasurement(formData)}
-      />
+      <div
+        className='modal fade'
+        id='modal'
+        tabIndex={-1}
+        role='dialog'
+        aria-labelledby='modalTitle'
+        aria-hidden='true'
+      >
+        <div className='modal-dialog modal-dialog-centered' role='document'>
+          {adding && (
+            <MeasurementAddModal
+              onFormSubmit={formData => addMeasurement(formData)}
+            />
+          )}
+          {selectedMeasurement && !adding && !updating && !deleting && (
+            <MeasurementViewModal
+              selectedMeasurement={selectedMeasurement}
+              onDeleteClick={() => setDeleting(true)}
+              onEditClick={() => setUpdating(true)}
+            />
+          )}
+          {selectedMeasurement && updating && (
+            <MeasurementUpdateModal
+              selectedMeasurement={selectedMeasurement}
+              onFormSubmit={formData => updateMeasurement(formData)}
+            />
+          )}
+          {selectedMeasurement && deleting && (
+            <DeleteConfirmationModal
+              itemToDeleteName={selectedMeasurement.name}
+              onDeleteClick={() => deleteMeasurement()}
+            />
+          )}
+        </div>
+      </div>
     </>
   );
 };

@@ -1,25 +1,29 @@
 import React from 'react';
 import { useForm, OnSubmit } from 'react-hook-form';
-import { SchedulePieceForm, SchedulePiece } from '../../pages/schedule-pieces';
+import {
+  IngredientForm,
+  Ingredient,
+  IngredientCategory,
+} from '../../pages/ingredients';
 
-interface SchedulePieceUpdateModalProps {
-  selectedSchedulePiece: SchedulePiece;
-  onFormSubmit: OnSubmit<SchedulePieceForm>;
+interface IngredientUpdateModalProps {
+  selectedIngredient: Ingredient;
+  categories: IngredientCategory[];
+  onFormSubmit: OnSubmit<IngredientForm>;
 }
 
-const SchedulePieceUpdateModal = ({
-  selectedSchedulePiece,
+const IngredientUpdateModal = ({
+  selectedIngredient,
+  categories,
   onFormSubmit,
-}: SchedulePieceUpdateModalProps) => {
-  const { register, handleSubmit, errors, reset } = useForm<
-    SchedulePieceForm
-  >();
+}: IngredientUpdateModalProps) => {
+  const { register, handleSubmit, errors, reset } = useForm<IngredientForm>();
 
   return (
     <div className='modal-content'>
       <div className='modal-header'>
         <h5 className='modal-title' id='modalTitle'>
-          Editing: {selectedSchedulePiece.name}
+          Editing: {selectedIngredient.name}
         </h5>
         <button
           type='button'
@@ -45,7 +49,7 @@ const SchedulePieceUpdateModal = ({
               ref={register({
                 required: 'Name is required',
               })}
-              defaultValue={selectedSchedulePiece.name}
+              defaultValue={selectedIngredient.name}
               className={`form-control ${errors.name ? 'border-danger' : ''}`}
               id='name'
             />
@@ -54,6 +58,23 @@ const SchedulePieceUpdateModal = ({
                 {errors.name.message}
               </small>
             )}
+          </div>
+          <div className='form-group'>
+            <label htmlFor='category'>Category</label>
+            <select
+              className='form-control'
+              name='categoryId'
+              ref={register}
+              id='category'
+              defaultValue={selectedIngredient.category.id}
+            >
+              <option value={null}></option>
+              {categories.map((category, index) => (
+                <option key={category.name + index} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         <div className='modal-footer'>
@@ -73,4 +94,4 @@ const SchedulePieceUpdateModal = ({
   );
 };
 
-export default SchedulePieceUpdateModal;
+export default IngredientUpdateModal;

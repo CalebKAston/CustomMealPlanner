@@ -86,7 +86,36 @@ const initialState = {
       id: 8,
     },
   ],
-  ingredientCategories: [],
+  ingredientCategories: [
+    {
+      name: 'Bread',
+      id: 1,
+    },
+    {
+      name: 'Canned/Boxed',
+      id: 2,
+    },
+    {
+      name: 'Dairy',
+      id: 3,
+    },
+    {
+      name: 'Frozen',
+      id: 4,
+    },
+    {
+      name: 'Fruits',
+      id: 5,
+    },
+    {
+      name: 'Meat',
+      id: 6,
+    },
+    {
+      name: 'Vegetables',
+      id: 7,
+    },
+  ],
   recipeCategories: [],
   tags: [],
 };
@@ -179,7 +208,7 @@ const recipes = (state = [], action) => {
     case actionTypes.recipes.add:
       return [...state, action.recipe];
     case actionTypes.recipes.update:
-      return state.map((recipe) => {
+      return state.map(recipe => {
         if (recipe.id === action.id) return { ...recipe, ...action.recipe };
         return recipe;
       });
@@ -196,7 +225,7 @@ const mealPlans = (state = [], action) => {
     case actionTypes.mealPlans.add:
       return [...state, action.mealPlan];
     case actionTypes.mealPlans.update:
-      return state.map((mealPlan) => {
+      return state.map(mealPlan => {
         if (mealPlan.id === action.id)
           return { ...mealPlan, ...action.mealPlan };
         return mealPlan;
@@ -214,7 +243,7 @@ const ingredients = (state = [], action) => {
     case actionTypes.ingredients.add:
       return [...state, action.ingredient];
     case actionTypes.ingredients.update:
-      return state.map((ingredient) => {
+      return state.map(ingredient => {
         if (ingredient.id === action.id)
           return { ...ingredient, ...action.ingredient };
         return ingredient;
@@ -232,7 +261,7 @@ const schedulePieces = (state = [], action) => {
     case actionTypes.schedulePieces.add:
       return [...state, action.schedulePiece];
     case actionTypes.schedulePieces.update:
-      return state.map((schedulePiece) => {
+      return state.map(schedulePiece => {
         if (schedulePiece.id === action.id)
           return { ...schedulePiece, ...action.schedulePiece };
         return schedulePiece;
@@ -250,7 +279,7 @@ const scheduleTemplates = (state = [], action) => {
     case actionTypes.scheduleTemplates.add:
       return [...state, action.scheduleTemplate];
     case actionTypes.scheduleTemplates.update:
-      return state.map((scheduleTemplate) => {
+      return state.map(scheduleTemplate => {
         if (scheduleTemplate.id === action.id)
           return { ...scheduleTemplate, ...action.scheduleTemplate };
         return scheduleTemplate;
@@ -268,7 +297,7 @@ const meals = (state = [], action) => {
     case actionTypes.meals.add:
       return [...state, action.meal];
     case actionTypes.meals.update:
-      return state.map((meal) => {
+      return state.map(meal => {
         if (meal.id === action.id) return { ...meal, ...action.meal };
         return meal;
       });
@@ -285,7 +314,7 @@ const measurements = (state = [], action) => {
     case actionTypes.measurements.add:
       return [...state, action.measurement];
     case actionTypes.measurements.update:
-      return state.map((measurement) => {
+      return state.map(measurement => {
         if (measurement.id === action.id) {
           return { ...measurement, ...action.measurement };
         }
@@ -304,7 +333,7 @@ const ingredientCategories = (state = [], action) => {
     case actionTypes.ingredientCategories.add:
       return [...state, action.ingredientCategory];
     case actionTypes.ingredientCategories.update:
-      return state.map((ingredientCategory) => {
+      return state.map(ingredientCategory => {
         if (ingredientCategory.id === action.id)
           return { ...ingredientCategory, ...action.ingredientCategory };
         return ingredientCategory;
@@ -322,7 +351,7 @@ const recipeCategories = (state = [], action) => {
     case actionTypes.recipeCategories.add:
       return [...state, action.recipeCategory];
     case actionTypes.recipeCategories.update:
-      return state.map((recipeCategory) => {
+      return state.map(recipeCategory => {
         if (recipeCategory.id === action.id)
           return { ...recipeCategory, ...action.recipeCategory };
         return recipeCategory;
@@ -340,7 +369,7 @@ const tags = (state = [], action) => {
     case actionTypes.tags.add:
       return [...state, action.tag];
     case actionTypes.tags.update:
-      return state.map((tag) => {
+      return state.map(tag => {
         if (tag.id === action.id) return { ...tag, ...action.tag };
         return tag;
       });

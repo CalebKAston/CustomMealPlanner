@@ -1,9 +1,17 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
+import { ServerStyleSheet } from 'styled-components';
 
 class MyDocument extends Document {
   static async getInitialProps(ctx) {
     const initialProps = await Document.getInitialProps(ctx);
-    return { ...initialProps };
+
+    const sheet = new ServerStyleSheet();
+    const page = ctx.renderPage((App) => (props) =>
+      sheet.collectStyles(<App {...props} />)
+    );
+    const styleTags = sheet.getStyleElement();
+
+    return { ...initialProps, styleTags };
   }
 
   render() {
@@ -16,6 +24,11 @@ class MyDocument extends Document {
             integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh'
             crossOrigin='anonymous'
           />
+
+          {
+            // @ts-ignore
+            this.props.styleTags
+          }
         </Head>
         <body>
           <Main />

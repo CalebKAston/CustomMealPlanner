@@ -2,24 +2,24 @@ import React from 'react';
 import styled from 'styled-components';
 import { SchedulePiece } from '../../pages/schedule-pieces';
 
-interface SchedulePieceViewModalProps {
-  selectedSchedulePiece: SchedulePiece;
+interface IngredientViewModalProps {
+  selectedIngredient: SchedulePiece;
   onDeleteClick: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
   onEditClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
-const SchedulePieceViewModal = ({
-  selectedSchedulePiece,
+const IngredientViewModal = ({
+  selectedIngredient,
   onDeleteClick,
   onEditClick,
-}: SchedulePieceViewModalProps) => {
+}: IngredientViewModalProps) => {
   return (
     <div className='modal-content'>
       <div className='modal-header'>
         <h5 className='modal-title' id='modalTitle'>
-          {selectedSchedulePiece.name}
+          {selectedIngredient.name}
         </h5>
         <button
           type='button'
@@ -54,4 +54,4 @@ const SchedulePieceViewModal = ({
   );
 };
 
-export default SchedulePieceViewModal;
+export default IngredientViewModal;

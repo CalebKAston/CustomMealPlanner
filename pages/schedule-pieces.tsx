@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { actionTypes } from '../store';
@@ -6,6 +6,7 @@ import SchedulePieceAddModal from '../components/schedule-piece-modals/add';
 import DeleteConfirmationModal from '../components/shared-modals/delete-confirmation-modal';
 import SchedulePieceUpdateModal from '../components/schedule-piece-modals/update';
 import SchedulePieceViewModal from '../components/schedule-piece-modals/view';
+import { withRedux } from '../lib/redux';
 
 const CursorPointerDiv = styled.div`
   cursor: pointer;
@@ -23,24 +24,33 @@ export interface SchedulePieceForm {
 const SchedulePieces = () => {
   const dispatch = useDispatch();
   const [nameFilter, setNameFilter] = useState('');
+  const schedulePieces = useSelector(state => state.schedulePieces);
+  const [selectedSchedulePiece, setSelectedSchedulePiece] = useState<
+    SchedulePiece
+  >();
+  const [updating, setUpdating] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   const filterFn = (item: SchedulePiece) => {
     return nameFilter ? new RegExp(nameFilter, 'i').test(item.name) : true;
   };
-  const schedulePieces = useSelector((state) => state.schedulePieces);
-  const [selectedSchedulePiece, setSelectedSchedulePiece] = useState<
-    SchedulePiece
-  >(schedulePieces.length > 0 ? schedulePieces[0] : null);
 
-  const setSelectedSchedulePieceAndOpenModal = (
-    schedulePiece: SchedulePiece
-  ) => {
-    setSelectedSchedulePiece(schedulePiece);
-    $('#view').modal('show');
+  useEffect(() => {
+    $('#modal').on('hidden.bs.modal', function (e) {
+      setAdding(false);
+      setUpdating(false);
+      setDeleting(false);
+      setSelectedSchedulePiece(null);
+    });
+  });
+
+  const openModal = () => {
+    $('#modal').modal('show');
   };
 
-  const openUpdateModal = () => {
-    $('#view').modal('hide');
-    $('#update').modal('show');
+  const closeModal = () => {
+    $('#modal').modal('hide');
   };
 
   const updateItem = (formData: SchedulePieceForm) => {
@@ -49,11 +59,8 @@ const SchedulePieces = () => {
       id: selectedSchedulePiece.id,
       schedulePiece: formData,
     });
-    $('#update').modal('hide');
-  };
-
-  const openAddModal = () => {
-    $('#add').modal('show');
+    setUpdating(false);
+    closeModal();
   };
 
   const addItem = (formData: SchedulePieceForm) => {
@@ -61,12 +68,8 @@ const SchedulePieces = () => {
       type: actionTypes.schedulePieces.add,
       schedulePiece: { ...formData, id: 10 },
     });
-    $('#add').modal('hide');
-  };
-
-  const openDeleteModal = () => {
-    $('#view').modal('hide');
-    $('#delete').modal('show');
+    setAdding(false);
+    closeModal();
   };
 
   const deleteItem = () => {
@@ -74,11 +77,9 @@ const SchedulePieces = () => {
       type: actionTypes.schedulePieces.remove,
       schedulePiece: selectedSchedulePiece,
     });
-    $('#view').modal('hide');
-    $('#delete').modal('hide');
-    setSelectedSchedulePiece(
-      schedulePieces.length > 0 ? schedulePieces[0] : null
-    );
+    setDeleting(false);
+    setSelectedSchedulePiece(null);
+    closeModal();
   };
 
   return (
@@ -106,7 +107,7 @@ const SchedulePieces = () => {
                   name='name'
                   className={`form-control`}
                   value={nameFilter}
-                  onChange={(e) => setNameFilter(e.target.value)}
+                  onChange={e => setNameFilter(e.target.value)}
                   id='nameFilter'
                 />
               </div>
@@ -116,7 +117,10 @@ const SchedulePieces = () => {
         <div className='col-12 mt-3'>
           <button
             className='btn btn-success w-100'
-            onClick={() => openAddModal()}
+            onClick={() => {
+              setAdding(true);
+              openModal();
+            }}
           >
             Add New Schedule Piece
           </button>
@@ -128,13 +132,14 @@ const SchedulePieces = () => {
             No schedule pieces available. Create one!
           </div>
         )}
-        {schedulePieces.filter(filterFn).map((schedulePiece) => (
+        {schedulePieces.filter(filterFn).map(schedulePiece => (
           <div className='col-4 mb-3' key={schedulePiece.name}>
             <CursorPointerDiv
               className='card'
-              onClick={() =>
-                setSelectedSchedulePieceAndOpenModal(schedulePiece)
-              }
+              onClick={() => {
+                setSelectedSchedulePiece(schedulePiece);
+                openModal();
+              }}
             >
               <div className='card-body'>
                 <h5 className='card-title'>{schedulePiece.name}</h5>
@@ -144,34 +149,43 @@ const SchedulePieces = () => {
           </div>
         ))}
       </div>
-      {selectedSchedulePiece && (
-        <SchedulePieceViewModal
-          id='view'
-          selectedSchedulePiece={selectedSchedulePiece}
-          onDeleteClick={() => openDeleteModal()}
-          onEditClick={() => openUpdateModal()}
-        />
-      )}
-      {selectedSchedulePiece && (
-        <SchedulePieceUpdateModal
-          id='update'
-          selectedSchedulePiece={selectedSchedulePiece}
-          onFormSubmit={(formData) => updateItem(formData)}
-        />
-      )}
-      {selectedSchedulePiece && (
-        <DeleteConfirmationModal
-          id='delete'
-          itemToDeleteName={selectedSchedulePiece.name}
-          onDeleteClick={() => deleteItem()}
-        />
-      )}
-      <SchedulePieceAddModal
-        id='add'
-        onFormSubmit={(formData) => addItem(formData)}
-      />
+      <div
+        className='modal fade'
+        id='modal'
+        tabIndex={-1}
+        role='dialog'
+        aria-labelledby='modalTitle'
+        aria-hidden='true'
+      >
+        <div className='modal-dialog modal-dialog-centered' role='document'>
+          {adding && (
+            <SchedulePieceAddModal
+              onFormSubmit={formData => addItem(formData)}
+            />
+          )}
+          {selectedSchedulePiece && !adding && !updating && !deleting && (
+            <SchedulePieceViewModal
+              selectedSchedulePiece={selectedSchedulePiece}
+              onDeleteClick={() => setDeleting(true)}
+              onEditClick={() => setUpdating(true)}
+            />
+          )}
+          {selectedSchedulePiece && updating && (
+            <SchedulePieceUpdateModal
+              selectedSchedulePiece={selectedSchedulePiece}
+              onFormSubmit={formData => updateItem(formData)}
+            />
+          )}
+          {selectedSchedulePiece && deleting && (
+            <DeleteConfirmationModal
+              itemToDeleteName={selectedSchedulePiece.name}
+              onDeleteClick={() => deleteItem()}
+            />
+          )}
+        </div>
+      </div>
     </>
   );
 };
 
-export default SchedulePieces;
+export default withRedux(SchedulePieces);
