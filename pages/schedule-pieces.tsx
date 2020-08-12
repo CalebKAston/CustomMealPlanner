@@ -11,6 +11,7 @@ import {
   ExpandCollapseButton,
   ExpandCollapse,
 } from '../components/expand-collapse';
+import Filter from '../components/filter';
 
 const CursorPointerDiv = styled.div`
   cursor: pointer;
@@ -28,7 +29,7 @@ export interface SchedulePieceForm {
 const SchedulePieces = () => {
   const dispatch = useDispatch();
   const [nameFilter, setNameFilter] = useState('');
-  const schedulePieces = useSelector((state) => state.schedulePieces);
+  const schedulePieces = useSelector(state => state.schedulePieces);
   const [selectedSchedulePiece, setSelectedSchedulePiece] = useState<
     SchedulePiece
   >();
@@ -89,47 +90,21 @@ const SchedulePieces = () => {
   return (
     <>
       <div className='row mb-3'>
-        <div className='col-12'>
-          <ExpandCollapseButton
-            className='btn btn-secondary w-100'
-            target='filter'
-            defaultExpanded={false}
-          >
-            Filter
-          </ExpandCollapseButton>
-        </div>
-        <div className='col-12'>
-          <ExpandCollapse id='filter' border={true}>
-            <div className='col-6'>
-              <div className='form-group'>
-                <label htmlFor='nameFilter'>Name</label>
-                <input
-                  type='text'
-                  name='name'
-                  className={`form-control`}
-                  value={nameFilter}
-                  onChange={(e) => setNameFilter(e.target.value)}
-                  id='nameFilter'
-                />
-              </div>
-            </div>
-          </ExpandCollapse>
-          <div className='collapse border' id='filter'>
-            <div className='col-6 pt-3'>
-              <div className='form-group'>
-                <label htmlFor='nameFilter'>Name</label>
-                <input
-                  type='text'
-                  name='name'
-                  className={`form-control`}
-                  value={nameFilter}
-                  onChange={(e) => setNameFilter(e.target.value)}
-                  id='nameFilter'
-                />
-              </div>
+        <Filter>
+          <div className='col-6'>
+            <div className='form-group'>
+              <label htmlFor='nameFilter'>Name</label>
+              <input
+                type='text'
+                name='name'
+                className={`form-control`}
+                value={nameFilter}
+                onChange={e => setNameFilter(e.target.value)}
+                id='nameFilter'
+              />
             </div>
           </div>
-        </div>
+        </Filter>
         <div className='col-12 mt-3'>
           <button
             className='btn btn-success w-100'
@@ -148,7 +123,7 @@ const SchedulePieces = () => {
             No schedule pieces available. Create one!
           </div>
         )}
-        {schedulePieces.filter(filterFn).map((schedulePiece) => (
+        {schedulePieces.filter(filterFn).map(schedulePiece => (
           <div className='col-4 mb-3' key={schedulePiece.name}>
             <CursorPointerDiv
               className='card'
@@ -176,7 +151,7 @@ const SchedulePieces = () => {
         <div className='modal-dialog modal-dialog-centered' role='document'>
           {adding && (
             <SchedulePieceAddModal
-              onFormSubmit={(formData) => addItem(formData)}
+              onFormSubmit={formData => addItem(formData)}
             />
           )}
           {selectedSchedulePiece && !adding && !updating && !deleting && (
@@ -189,7 +164,7 @@ const SchedulePieces = () => {
           {selectedSchedulePiece && updating && (
             <SchedulePieceUpdateModal
               selectedSchedulePiece={selectedSchedulePiece}
-              onFormSubmit={(formData) => updateItem(formData)}
+              onFormSubmit={formData => updateItem(formData)}
             />
           )}
           {selectedSchedulePiece && deleting && (

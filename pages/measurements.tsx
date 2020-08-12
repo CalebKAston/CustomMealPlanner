@@ -11,6 +11,7 @@ import {
   ExpandCollapseButton,
   ExpandCollapse,
 } from '../components/expand-collapse';
+import Filter from '../components/filter';
 
 export interface Measurement {
   name: string;
@@ -42,9 +43,7 @@ const BoldedSpan = styled.span`
 const Measurements = () => {
   const dispatch = useDispatch();
   const [nameFilter, setNameFilter] = useState('');
-  const measurements: Measurement[] = useSelector(
-    (state) => state.measurements
-  );
+  const measurements: Measurement[] = useSelector(state => state.measurements);
   const [selectedMeasurement, setSelectedMeasurement] = useState<Measurement>();
   const [updating, setUpdating] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -103,32 +102,21 @@ const Measurements = () => {
   return (
     <>
       <div className='row mb-3'>
-        <div className='col-12'>
-          <ExpandCollapseButton
-            className='btn btn-secondary w-100'
-            target='measurementFilter'
-            defaultExpanded={false}
-          >
-            Filter
-          </ExpandCollapseButton>
-        </div>
-        <div className='col-12'>
-          <ExpandCollapse id='measurementFilter' border={true}>
-            <div className='col-6'>
-              <div className='form-group'>
-                <label htmlFor='name'>Name</label>
-                <input
-                  type='text'
-                  name='name'
-                  className={`form-control`}
-                  value={nameFilter}
-                  onChange={(e) => setNameFilter(e.target.value)}
-                  id='measurementsName'
-                />
-              </div>
+        <Filter>
+          <div className='col-6'>
+            <div className='form-group'>
+              <label htmlFor='name'>Name</label>
+              <input
+                type='text'
+                name='name'
+                className={`form-control`}
+                value={nameFilter}
+                onChange={e => setNameFilter(e.target.value)}
+                id='measurementsName'
+              />
             </div>
-          </ExpandCollapse>
-        </div>
+          </div>
+        </Filter>
         <div className='col-12 mt-3'>
           <button
             className='btn btn-success w-100'
@@ -147,7 +135,7 @@ const Measurements = () => {
             No measurements available. Create one!
           </div>
         )}
-        {measurements.filter(filterFn).map((measurement) => (
+        {measurements.filter(filterFn).map(measurement => (
           <div className='col-4 mb-3' key={measurement.name}>
             <CursorPointerDiv
               className='card'
@@ -189,7 +177,7 @@ const Measurements = () => {
         <div className='modal-dialog modal-dialog-centered' role='document'>
           {adding && (
             <MeasurementAddModal
-              onFormSubmit={(formData) => addMeasurement(formData)}
+              onFormSubmit={formData => addMeasurement(formData)}
             />
           )}
           {selectedMeasurement && !adding && !updating && !deleting && (
@@ -202,7 +190,7 @@ const Measurements = () => {
           {selectedMeasurement && updating && (
             <MeasurementUpdateModal
               selectedMeasurement={selectedMeasurement}
-              onFormSubmit={(formData) => updateMeasurement(formData)}
+              onFormSubmit={formData => updateMeasurement(formData)}
             />
           )}
           {selectedMeasurement && deleting && (
