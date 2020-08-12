@@ -7,6 +7,10 @@ import DeleteConfirmationModal from '../components/shared-modals/delete-confirma
 import IngredientUpdateModal from '../components/ingredient-modals/update';
 import IngredientViewModal from '../components/ingredient-modals/view';
 import { withRedux } from '../lib/redux';
+import {
+  ExpandCollapse,
+  ExpandCollapseButton,
+} from '../components/expand-collapse';
 
 const CursorPointerDiv = styled.div`
   cursor: pointer;
@@ -31,12 +35,14 @@ export interface IngredientForm {
 const Ingredients = () => {
   const dispatch = useDispatch();
   const [nameFilter, setNameFilter] = useState('');
-  const ingredients = useSelector(state => state.ingredients);
+  const ingredients = useSelector((state) => state.ingredients);
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient>();
   const [updating, setUpdating] = useState(false);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const ingredientCategories = useSelector(state => state.ingredientCategories);
+  const ingredientCategories = useSelector(
+    (state) => state.ingredientCategories
+  );
 
   const filterFn = (item: Ingredient) => {
     return nameFilter ? new RegExp(nameFilter, 'i').test(item.name) : true;
@@ -67,7 +73,9 @@ const Ingredients = () => {
     const category = formData.categoryId
       ? Object.assign(
           {},
-          ingredientCategories.find(ingCat => ingCat.id == formData.categoryId)
+          ingredientCategories.find(
+            (ingCat) => ingCat.id == formData.categoryId
+          )
         )
       : null;
     const ingredient: Ingredient = {
@@ -88,7 +96,9 @@ const Ingredients = () => {
     const category = formData.categoryId
       ? Object.assign(
           {},
-          ingredientCategories.find(ingCat => ingCat.id == formData.categoryId)
+          ingredientCategories.find(
+            (ingCat) => ingCat.id == formData.categoryId
+          )
         )
       : null;
     const ingredient: Ingredient = {
@@ -126,26 +136,23 @@ const Ingredients = () => {
 
   const visibleIngredientsWithNoCategory = ingredients
     .filter(filterFn)
-    .filter(ing => !ing.category);
+    .filter((ing) => !ing.category);
 
   return (
     <>
       <div className='row mb-3'>
         <div className='col-12'>
-          <button
+          <ExpandCollapseButton
             className='btn btn-secondary w-100'
-            type='button'
-            data-toggle='collapse'
-            data-target='#filter'
-            aria-expanded='false'
-            aria-controls='filter'
+            target='filter'
+            defaultExpanded={false}
           >
             Filter
-          </button>
+          </ExpandCollapseButton>
         </div>
         <div className='col-12'>
-          <div className='collapse border' id='filter'>
-            <div className='col-6 pt-3'>
+          <ExpandCollapse id='filter' border={true}>
+            <div className='col-6'>
               <div className='form-group'>
                 <label htmlFor='nameFilter'>Name</label>
                 <input
@@ -153,12 +160,12 @@ const Ingredients = () => {
                   name='name'
                   className={`form-control`}
                   value={nameFilter}
-                  onChange={e => setNameFilter(e.target.value)}
+                  onChange={(e) => setNameFilter(e.target.value)}
                   id='nameFilter'
                 />
               </div>
             </div>
-          </div>
+          </ExpandCollapse>
         </div>
         <div className='col-12 mt-3'>
           <button
@@ -181,22 +188,59 @@ const Ingredients = () => {
         {visibleIngredientsWithNoCategory.length > 0 && (
           <>
             <div className='col-12'>
-              <button
+              <ExpandCollapseButton
                 className='btn btn-secondary w-100'
-                type='button'
-                data-toggle='collapse'
-                data-target='#uncategorized'
-                aria-expanded='true'
-                aria-controls='uncategorized'
+                target='uncategorized'
               >
                 {`Uncategorized (${visibleIngredientsWithNoCategory.length})`}
-              </button>
+              </ExpandCollapseButton>
             </div>
             <div className='col-12 mb-3'>
-              <div className='collapse' id='uncategorized'>
-                <div className='col-12 border pt-3'>
-                  <div className='row'>
-                    {visibleIngredientsWithNoCategory.map(ingredient => (
+              <ExpandCollapse id='uncategorized' border={true}>
+                {visibleIngredientsWithNoCategory.map((ingredient) => (
+                  <div className='col-4 mb-3' key={ingredient.name}>
+                    <CursorPointerDiv
+                      className='card'
+                      onClick={() => {
+                        setSelectedIngredient(ingredient);
+                        openModal();
+                      }}
+                    >
+                      <div className='card-body'>
+                        <h5 className='card-title'>{ingredient.name}</h5>
+                        <div className='card-text'>No details to display</div>
+                      </div>
+                    </CursorPointerDiv>
+                  </div>
+                ))}
+              </ExpandCollapse>
+            </div>
+          </>
+        )}
+        {ingredientCategories.map((ic, index) => {
+          const visibleIngredientsInCategory = ingredients
+            .filter(filterFn)
+            .filter((ing) =>
+              ing.category ? ing.category.id === ic.id : false
+            );
+          if (visibleIngredientsInCategory.length > 0) {
+            return (
+              <React.Fragment key={ic.id}>
+                <div className='col-12'>
+                  <ExpandCollapseButton
+                    className='btn btn-secondary w-100'
+                    target={`category${ic.id}-${index}`}
+                    defaultExpanded={false}
+                  >
+                    {`${ic.name} (${visibleIngredientsInCategory.length})`}
+                  </ExpandCollapseButton>
+                </div>
+                <div className='col-12 mb-3'>
+                  <ExpandCollapse
+                    id={`category${ic.id}-${index}`}
+                    border={true}
+                  >
+                    {visibleIngredientsInCategory.map((ingredient) => (
                       <div className='col-4 mb-3' key={ingredient.name}>
                         <CursorPointerDiv
                           className='card'
@@ -214,58 +258,7 @@ const Ingredients = () => {
                         </CursorPointerDiv>
                       </div>
                     ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-        {ingredientCategories.map((ic, index) => {
-          const visibleIngredientsInCategory = ingredients
-            .filter(filterFn)
-            .filter(ing => (ing.category ? ing.category.id === ic.id : false));
-          if (visibleIngredientsInCategory.length > 0) {
-            return (
-              <React.Fragment key={ic.id}>
-                <div className='col-12'>
-                  <button
-                    className='btn btn-secondary w-100'
-                    type='button'
-                    data-toggle='collapse'
-                    data-target={`#category${ic.id}-${index}`}
-                    aria-expanded='false'
-                    aria-controls={`category${ic.id}-${index}`}
-                  >
-                    {`${ic.name} (${visibleIngredientsInCategory.length})`}
-                  </button>
-                </div>
-                <div className='col-12 mb-3'>
-                  <div className='collapse' id={`category${ic.id}-${index}`}>
-                    <div className='col-12 border pt-3'>
-                      <div className='row'>
-                        {visibleIngredientsInCategory.map(ingredient => (
-                          <div className='col-4 mb-3' key={ingredient.name}>
-                            <CursorPointerDiv
-                              className='card'
-                              onClick={() => {
-                                setSelectedIngredient(ingredient);
-                                openModal();
-                              }}
-                            >
-                              <div className='card-body'>
-                                <h5 className='card-title'>
-                                  {ingredient.name}
-                                </h5>
-                                <div className='card-text'>
-                                  No details to display
-                                </div>
-                              </div>
-                            </CursorPointerDiv>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  </ExpandCollapse>
                 </div>
               </React.Fragment>
             );
@@ -283,7 +276,7 @@ const Ingredients = () => {
         <div className='modal-dialog modal-dialog-centered' role='document'>
           {adding && (
             <IngredientAddModal
-              onFormSubmit={formData => addItem(formData)}
+              onFormSubmit={(formData) => addItem(formData)}
               categories={ingredientCategories}
               onAddCategory={addIngredientCategory}
             />
@@ -299,7 +292,7 @@ const Ingredients = () => {
             <IngredientUpdateModal
               selectedIngredient={selectedIngredient}
               categories={ingredientCategories}
-              onFormSubmit={formData => updateItem(formData)}
+              onFormSubmit={(formData) => updateItem(formData)}
             />
           )}
           {selectedIngredient && deleting && (

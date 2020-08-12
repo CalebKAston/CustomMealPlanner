@@ -7,6 +7,10 @@ import DeleteConfirmationModal from '../components/shared-modals/delete-confirma
 import SchedulePieceUpdateModal from '../components/schedule-piece-modals/update';
 import SchedulePieceViewModal from '../components/schedule-piece-modals/view';
 import { withRedux } from '../lib/redux';
+import {
+  ExpandCollapseButton,
+  ExpandCollapse,
+} from '../components/expand-collapse';
 
 const CursorPointerDiv = styled.div`
   cursor: pointer;
@@ -24,7 +28,7 @@ export interface SchedulePieceForm {
 const SchedulePieces = () => {
   const dispatch = useDispatch();
   const [nameFilter, setNameFilter] = useState('');
-  const schedulePieces = useSelector(state => state.schedulePieces);
+  const schedulePieces = useSelector((state) => state.schedulePieces);
   const [selectedSchedulePiece, setSelectedSchedulePiece] = useState<
     SchedulePiece
   >();
@@ -86,18 +90,30 @@ const SchedulePieces = () => {
     <>
       <div className='row mb-3'>
         <div className='col-12'>
-          <button
+          <ExpandCollapseButton
             className='btn btn-secondary w-100'
-            type='button'
-            data-toggle='collapse'
-            data-target='#filter'
-            aria-expanded='false'
-            aria-controls='filter'
+            target='filter'
+            defaultExpanded={false}
           >
             Filter
-          </button>
+          </ExpandCollapseButton>
         </div>
         <div className='col-12'>
+          <ExpandCollapse id='filter' border={true}>
+            <div className='col-6'>
+              <div className='form-group'>
+                <label htmlFor='nameFilter'>Name</label>
+                <input
+                  type='text'
+                  name='name'
+                  className={`form-control`}
+                  value={nameFilter}
+                  onChange={(e) => setNameFilter(e.target.value)}
+                  id='nameFilter'
+                />
+              </div>
+            </div>
+          </ExpandCollapse>
           <div className='collapse border' id='filter'>
             <div className='col-6 pt-3'>
               <div className='form-group'>
@@ -107,7 +123,7 @@ const SchedulePieces = () => {
                   name='name'
                   className={`form-control`}
                   value={nameFilter}
-                  onChange={e => setNameFilter(e.target.value)}
+                  onChange={(e) => setNameFilter(e.target.value)}
                   id='nameFilter'
                 />
               </div>
@@ -132,7 +148,7 @@ const SchedulePieces = () => {
             No schedule pieces available. Create one!
           </div>
         )}
-        {schedulePieces.filter(filterFn).map(schedulePiece => (
+        {schedulePieces.filter(filterFn).map((schedulePiece) => (
           <div className='col-4 mb-3' key={schedulePiece.name}>
             <CursorPointerDiv
               className='card'
@@ -160,7 +176,7 @@ const SchedulePieces = () => {
         <div className='modal-dialog modal-dialog-centered' role='document'>
           {adding && (
             <SchedulePieceAddModal
-              onFormSubmit={formData => addItem(formData)}
+              onFormSubmit={(formData) => addItem(formData)}
             />
           )}
           {selectedSchedulePiece && !adding && !updating && !deleting && (
@@ -173,7 +189,7 @@ const SchedulePieces = () => {
           {selectedSchedulePiece && updating && (
             <SchedulePieceUpdateModal
               selectedSchedulePiece={selectedSchedulePiece}
-              onFormSubmit={formData => updateItem(formData)}
+              onFormSubmit={(formData) => updateItem(formData)}
             />
           )}
           {selectedSchedulePiece && deleting && (
