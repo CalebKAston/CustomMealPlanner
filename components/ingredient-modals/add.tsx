@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useForm, OnSubmit } from 'react-hook-form';
 import { IngredientCategory, IngredientForm } from '../../pages/ingredients';
+import { ExpandCollapseButton, ExpandCollapse } from '../expand-collapse';
+import AddIngredientCategory from '../add-ingredient-category';
 
 interface IngredientAddModalProps {
   onFormSubmit: OnSubmit<IngredientForm>;
@@ -79,45 +81,7 @@ const IngredientAddModal = ({
               ))}
             </select>
           </div>
-          <div className='w-100'>
-            <button
-              className='btn btn-success w-100'
-              type='button'
-              data-toggle='collapse'
-              data-target='#addIngredientCategory'
-              aria-expanded='true'
-              aria-controls='addIngredientCategory'
-            >
-              + Add Ingredient Category
-            </button>
-          </div>
-          <div className='w-100 mb-3'>
-            <div className='collapse' id='addIngredientCategory'>
-              <div className='form-group mb-3 pt-2'>
-                <label htmlFor='name'>Category Name</label>
-                <input
-                  type='text'
-                  value={newCategoryName}
-                  onChange={e => setNewCategoryName(e.target.value)}
-                  name='categoryName'
-                  className={`form-control`}
-                  id='categoryName'
-                />
-              </div>
-              <button
-                disabled={newCategoryName === ''}
-                className='btn btn-info w-100'
-                type='button'
-                onClick={() => {
-                  onAddCategory(newCategoryName);
-                  setNewCategoryName('');
-                  $('#addIngredientCategory').collapse('hide');
-                }}
-              >
-                Create Category
-              </button>
-            </div>
-          </div>
+          <AddIngredientCategory />
         </div>
         <div className='modal-footer'>
           <button

@@ -5,6 +5,7 @@ import {
   Ingredient,
   IngredientCategory,
 } from '../../pages/ingredients';
+import AddIngredientCategory from '../add-ingredient-category';
 
 interface IngredientUpdateModalProps {
   selectedIngredient: Ingredient;
@@ -76,6 +77,7 @@ const IngredientUpdateModal = ({
               ))}
             </select>
           </div>
+          <AddIngredientCategory />
         </div>
         <div className='modal-footer'>
           <button
